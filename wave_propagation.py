@@ -5,7 +5,7 @@ import matplotlib.animation as anim
 # Domain size
 w = h = 10
 # Setting mesh
-dx = dy = .1
+dx = dy = .05
 nx, ny = int(w/dx), int(h/dy)
 dx2, dy2 = dx*dx, dy*dy
 # Propagation speed
@@ -19,7 +19,7 @@ u = np.zeros((nx, ny))
 v = u.copy()
 for i in range(nx):
     for j in range(ny):
-        d = (i*dx-w/4)**2 + (j*dy-h/7)**2
+        d = (i*dx-w/2)**2 + (j*dy-h/2)**2
         if d < 0.5:
             u[i, j] = 1
 
@@ -30,7 +30,9 @@ def lap(u, dx, dy):
     u_[1:-1,1:-1] = (u[2:, 1:-1] - 2*u[1:-1, 1:-1] + u[:-2, 1:-1])/dx**2 + (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, :-2])/dy**2
     return u_
 
+
 integrated_laplacian = lap(u, dx, dy)
+
 
 def evolve(u, v, integrated_laplacian):
     integrated_laplacian += lap(u, dx, dy)
@@ -48,16 +50,20 @@ ax.set_title('t=0')
 
 
 # Animate
-n_steps = 5000
-
-
 def animate(i):
     global u, v, integrated_laplacian
     u, v, integrated_laplacian = evolve(u, v, integrated_laplacian)
     ax.set_title('t = {:.1f}'.format(i*dt))
     im.set_data(u.copy())
 
-interval = 1
-ani = anim.FuncAnimation(fig, animate, frames = n_steps, repeat=False, interval=interval)
 
-plt.show()
+def create_animation(n_steps, filename=None):
+    ani = anim.FuncAnimation(fig, animate, frames = n_steps, repeat=False, interval=1)
+    writer = anim.PillowWriter(fps=15, metadata=dict(artist='ruehhh'), bitrate=1800)
+    if filename:
+        ani.save(filename=filename, writer=writer)
+    plt.show()
+
+
+if __name__ == "__main__":
+    create_animation(500)
