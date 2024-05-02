@@ -1,4 +1,5 @@
 import numpy as np
+import math as m
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 
@@ -14,20 +15,25 @@ c = 1
 dt = (dx*dy)/c*np.sqrt(1/(dx2+dy2))
 dt2 = dt*dt
 
+
 # Initial conditions
-u = np.zeros((nx, ny))
+def f(x, y):
+    # Insert initial condition here, should satisfy Dirichlet BCs
+    return m.exp(- (x-w/2)**2 - (y-h/2)**2)
+
+
+u = np.zeros((ny, nx))
 v = u.copy()
-for i in range(nx):
-    for j in range(ny):
-        d = (i*dx-w/2)**2 + (j*dy-h/2)**2
-        if d < 0.5:
-            u[i, j] = 1
+# Fills in the grid with the chosen initial condition, the boundary values are left as 0
+for i in range(1, ny-1):
+    for j in range(1, nx-1):
+        u[i, j] = f(j*dx, i*dy)
 
 
 # Define Laplacian and sum of laplacians for integral form of equation
 def lap(u, dx, dy):
     u_ = u.copy()
-    u_[1:-1,1:-1] = (u[2:, 1:-1] - 2*u[1:-1, 1:-1] + u[:-2, 1:-1])/dx**2 + (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, :-2])/dy**2
+    u_[1:-1, 1:-1] = (u[2:, 1:-1] - 2*u[1:-1, 1:-1] + u[:-2, 1:-1])/dx**2 + (u[1:-1, 2:] - 2*u[1:-1, 1:-1] + u[1:-1, :-2])/dy**2
     return u_
 
 
